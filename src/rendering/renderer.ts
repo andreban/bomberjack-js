@@ -1,4 +1,5 @@
 import { QuadPipeline } from "./pipelines/quad";
+import { SpritePipeline } from "./pipelines/sprite";
 import { TrianglePipeline } from "./pipelines/triangle";
 
 export class Renderer {
@@ -9,6 +10,7 @@ export class Renderer {
      private context: GPUCanvasContext,
      private quadPipeline: QuadPipeline,
      private trianglePipeline: TrianglePipeline,
+     private spritePipeline: SpritePipeline,
      ) {
   }
 
@@ -30,8 +32,10 @@ export class Renderer {
         } as GPURenderPassColorAttachment
       ],
     });
-    this.quadPipeline.render(renderPass, this.queue);
+    
     // this.trianglePipeline.render(renderPass, this.queue);
+    this.spritePipeline.render(renderPass, this.queue);
+    this.quadPipeline.render(renderPass, this.queue);
     renderPass.end();
 
     this.queue.submit([encoder.finish()]);
@@ -54,8 +58,9 @@ export class Renderer {
     };
     gpuCanvasContext.configure(canvasConfig);
 
-    const quadPipeline = QuadPipeline.create(gpuDevice, canvasConfig);
-    const trianglePipeline = TrianglePipeline.create(gpuDevice, canvasConfig);
+    const quadPipeline = await QuadPipeline.create(gpuDevice, canvasConfig);
+    const trianglePipeline = await TrianglePipeline.create(gpuDevice, canvasConfig);
+    const spritePipeline = await SpritePipeline.create(gpuDevice, gpuQueue, canvasConfig);
 
     return new Renderer(
       gpuAdapter,
@@ -64,6 +69,7 @@ export class Renderer {
       gpuCanvasContext,
       quadPipeline,
       trianglePipeline,
+      spritePipeline,
     );
   }
 }

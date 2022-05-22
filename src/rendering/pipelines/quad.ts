@@ -1,4 +1,4 @@
-import { mat3, mat4, vec3, glMatrix} from 'gl-matrix';
+import { mat4, vec3, glMatrix} from 'gl-matrix';
 import { Camera2d, CAMERA_UNIFORM_SIZE } from '../camera';
 
 export class QuadPipeline {
@@ -12,7 +12,7 @@ export class QuadPipeline {
   ) {
   }
 
-  static create(device: GPUDevice, configuration: GPUCanvasConfiguration): QuadPipeline {
+  static async create(device: GPUDevice, configuration: GPUCanvasConfiguration): Promise<QuadPipeline> {
     const quadShader = device.createShaderModule({
       label: 'QuadShader',
       code: QUAD_SHADER_CODE,
@@ -200,7 +200,7 @@ export class QuadPipeline {
     renderPass.setVertexBuffer(0, this.vertexBuffer);
     renderPass.setVertexBuffer(1, this.instanceBuffer);
     renderPass.setIndexBuffer(this.indexBuffer, 'uint16');
-    renderPass.drawIndexed(6, 1, 0, 0);
+    renderPass.drawIndexed(6, 1);
   }
 }
 

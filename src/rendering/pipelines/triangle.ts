@@ -21,7 +21,7 @@ export class TrianglePipeline {
 
   }
 
-  static create(device: GPUDevice, configuration: GPUCanvasConfiguration): TrianglePipeline {
+  static async create(device: GPUDevice, configuration: GPUCanvasConfiguration): Promise<TrianglePipeline> {
     const shader = device.createShaderModule({
       code: SHADER_CODE,
     });
