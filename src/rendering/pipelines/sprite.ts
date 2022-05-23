@@ -3,6 +3,7 @@ import { Texture } from "../texture";
 import textureUrl = require('../../assets/texture.png');
 import { Camera2d, CAMERA_UNIFORM_SIZE } from "../camera";
 import { glMatrix, mat4, vec3 } from "gl-matrix";
+import { Quad } from "../meshes/quad";
 
 export class SpritePipeline {
     constructor(
@@ -17,9 +18,7 @@ export class SpritePipeline {
 
     }
 
-    render(renderPass: GPURenderPassEncoder, queue: GPUQueue) {
-        const camera = new Camera2d(600, 650);
-
+    render(renderPass: GPURenderPassEncoder, queue: GPUQueue, camera: Camera2d) {
         // Setup the square instance.
         const translation = vec3.fromValues(0, 0, 0.0);
         const scale = vec3.fromValues(600, 650, 1.0);
@@ -45,7 +44,7 @@ export class SpritePipeline {
         renderPass.setVertexBuffer(0, this.vertexBuffer);
         renderPass.setVertexBuffer(1, this.instanceBuffer);
         renderPass.setIndexBuffer(this.indexBuffer, 'uint16');
-        renderPass.drawIndexed(6, 1);
+        renderPass.drawIndexed(Quad.indices.length, 1);
     }
 
     static async create(device: GPUDevice, queue: GPUQueue, configuration: GPUCanvasConfiguration)
@@ -213,12 +212,7 @@ export class SpritePipeline {
             mappedAtCreation: true,
         });
         const vertexPositions = new Float32Array(vertexBuffer.getMappedRange());
-            vertexPositions.set([
-            -1.0, 1.0, 0.0,
-            -1.0, -1.0, 0.0,
-            1.0, 1.0, 0.0,
-            1.0, -1.0, 0.0,
-        ]);
+        vertexPositions.set(Quad.vertices);
         vertexBuffer.unmap();
         
         const indexBuffer = device.createBuffer({
@@ -228,7 +222,7 @@ export class SpritePipeline {
             mappedAtCreation: true,
         });
         const indexPositions = new Uint16Array(indexBuffer.getMappedRange());
-        indexPositions.set([0, 1, 2, 2, 1, 3]);
+        indexPositions.set(Quad.indices);
         indexBuffer.unmap();
         
         const instanceBuffer = device.createBuffer({

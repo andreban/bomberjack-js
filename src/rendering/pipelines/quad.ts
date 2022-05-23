@@ -1,5 +1,7 @@
 import { mat4, vec3, glMatrix} from 'gl-matrix';
 import { Camera2d, CAMERA_UNIFORM_SIZE } from '../camera';
+import { ColorQuadInstance } from '../instances/quad';
+import { Quad } from '../meshes/quad';
 
 export class QuadPipeline {
   constructor(
@@ -137,12 +139,7 @@ export class QuadPipeline {
       mappedAtCreation: true,
     });
     const vertexPositions = new Float32Array(vertexBuffer.getMappedRange());
-    vertexPositions.set([
-      -1.0, 1.0, 0.0,
-      -1.0, -1.0, 0.0,
-      1.0, 1.0, 0.0,
-      1.0, -1.0, 0.0,
-    ]);
+    vertexPositions.set(Quad.vertices);
     vertexBuffer.unmap();
 
     const indexBuffer = device.createBuffer({
@@ -152,13 +149,13 @@ export class QuadPipeline {
       mappedAtCreation: true,
     });
     const indexPositions = new Uint16Array(indexBuffer.getMappedRange());
-    indexPositions.set([0, 1, 2, 2, 1, 3]);
+    indexPositions.set(Quad.indices);
     indexBuffer.unmap();
 
     const instanceBuffer = device.createBuffer({
       label: 'Quad Instance Buffer',
       // Each instance is color: 3 * f32, transform: 4 * [4 * f32] = 76 bytes.
-      size: 1000 * 76, // 1000 instances. 
+      size: 1000 * ColorQuadInstance.BYTE_LENGTH, // 1000 instances. 
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
       mappedAtCreation: false,
     });
@@ -173,26 +170,14 @@ export class QuadPipeline {
     );
   }
 
-  render(renderPass: GPURenderPassEncoder, queue: GPUQueue) {
-    const camera = new Camera2d(600, 650);
-
+  render(renderPass: GPURenderPassEncoder, queue: GPUQueue, camera: Camera2d, instances: ColorQuadInstance[]) {
     // Setup the square instance.
-    const translation = vec3.fromValues(-290, 0, 0.0);
-    const scale = vec3.fromValues(100, 100, 1.0);
-
-    const identity = mat4.identity(mat4.create());
-    const translated = mat4.translate(mat4.create(), identity, translation);
-    const rotated = mat4.rotateZ(mat4.create(), translated, glMatrix.toRadian(45));
-    const scaled = mat4.scale(mat4.create(), rotated, scale);
+    let offset = 0;
+    for (const instance of instances) {
+      queue.writeBuffer(this.instanceBuffer, offset, instance.toArray());
+      offset += ColorQuadInstance.BYTE_LENGTH;
+    }
     
-    const color = [1.0, 0.0, 0.0]; // Red
-    const instanceData = new Float32Array(19);
-    instanceData.set(color);
-    instanceData.set(scaled, 3);
-
-    queue.writeBuffer(this.instanceBuffer, 0, instanceData);
-    
-    // queue.writeBuffer(this.cameraBuffer, 0, new Float32Array(mat4.identity(mat4.create())));
     queue.writeBuffer(this.cameraBuffer, 0, camera.toArray());
 
     renderPass.setPipeline(this.renderPipeline);
@@ -200,7 +185,7 @@ export class QuadPipeline {
     renderPass.setVertexBuffer(0, this.vertexBuffer);
     renderPass.setVertexBuffer(1, this.instanceBuffer);
     renderPass.setIndexBuffer(this.indexBuffer, 'uint16');
-    renderPass.drawIndexed(6, 1);
+    renderPass.drawIndexed(Quad.indices.length, instances.length);
   }
 }
 
