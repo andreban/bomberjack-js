@@ -1,5 +1,5 @@
 import { Camera2d } from "./camera";
-import { ColorQuadInstance } from "./instances/quad";
+import { ColorQuadInstance, SpriteQuadInstance } from "./instances/quad";
 import { QuadPipeline } from "./pipelines/quad";
 import { SpritePipeline } from "./pipelines/sprite";
 import { TrianglePipeline } from "./pipelines/triangle";
@@ -16,7 +16,7 @@ export class Renderer {
      ) {
   }
 
-  render(camera: Camera2d, colorQuads: ColorQuadInstance[]) {
+  render(camera: Camera2d, colorQuads: ColorQuadInstance[], spriteQuads: SpriteQuadInstance[]) {
     const output = this.context.getCurrentTexture();
     const view = output.createView();
     const encoder = this.device.createCommandEncoder({
@@ -36,7 +36,7 @@ export class Renderer {
     });
     
     // this.trianglePipeline.render(renderPass, this.queue);
-    this.spritePipeline.render(renderPass, this.queue, camera);
+    this.spritePipeline.render(renderPass, this.queue, camera, spriteQuads);
     this.quadPipeline.render(renderPass, this.queue, camera, colorQuads);
     renderPass.end();
 

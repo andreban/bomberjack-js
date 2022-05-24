@@ -171,7 +171,6 @@ export class QuadPipeline {
   }
 
   render(renderPass: GPURenderPassEncoder, queue: GPUQueue, camera: Camera2d, instances: ColorQuadInstance[]) {
-    // Setup the square instance.
     let offset = 0;
     for (const instance of instances) {
       queue.writeBuffer(this.instanceBuffer, offset, instance.toArray());

@@ -4,6 +4,7 @@ import textureUrl = require('../../assets/texture.png');
 import { Camera2d, CAMERA_UNIFORM_SIZE } from "../camera";
 import { glMatrix, mat4, vec3 } from "gl-matrix";
 import { Quad } from "../meshes/quad";
+import { SpriteQuadInstance } from "../instances/quad";
 
 export class SpritePipeline {
     constructor(
@@ -18,24 +19,12 @@ export class SpritePipeline {
 
     }
 
-    render(renderPass: GPURenderPassEncoder, queue: GPUQueue, camera: Camera2d) {
-        // Setup the square instance.
-        const translation = vec3.fromValues(0, 0, 0.0);
-        const scale = vec3.fromValues(600, 650, 1.0);
-    
-        const identity = mat4.identity(mat4.create());
-        const translated = mat4.translate(mat4.create(), identity, translation);
-        const rotated = mat4.rotateZ(mat4.create(), translated, glMatrix.toRadian(0));
-        const scaled = mat4.scale(mat4.create(), rotated, scale);
-        
-        const tex_coords = [0.0, 0.0, 600.0 / 1162.0, 650.0 / 650.0];
-        const instanceData = new Float32Array(20);
-        instanceData.set(scaled, 0);
-        instanceData.set(tex_coords, 16);
-    
-        queue.writeBuffer(this.instanceBuffer, 0, instanceData);
-        
-        // queue.writeBuffer(this.cameraBuffer, 0, new Float32Array(mat4.identity(mat4.create())));
+    render(renderPass: GPURenderPassEncoder, queue: GPUQueue, camera: Camera2d, instances: SpriteQuadInstance[]) {
+        let offset = 0;
+        for (const instance of instances) {
+            queue.writeBuffer(this.instanceBuffer, offset, instance.toArray());
+            offset += SpriteQuadInstance.BYTE_LENGTH;
+        }
         queue.writeBuffer(this.cameraBuffer, 0, camera.toArray());
     
         renderPass.setPipeline(this.renderPipeline);
