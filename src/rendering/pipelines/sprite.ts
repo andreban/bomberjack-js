@@ -2,7 +2,6 @@ import { Texture } from "../texture";
 // @ts-ignore
 import textureUrl = require('../../assets/texture.png');
 import { Camera2d, CAMERA_UNIFORM_SIZE } from "../camera";
-import { glMatrix, mat4, vec3 } from "gl-matrix";
 import { Quad } from "../meshes/quad";
 import { SpriteQuadInstance } from "../instances/quad";
 
@@ -25,6 +24,7 @@ export class SpritePipeline {
             queue.writeBuffer(this.instanceBuffer, offset, instance.toArray());
             offset += SpriteQuadInstance.BYTE_LENGTH;
         }
+
         queue.writeBuffer(this.cameraBuffer, 0, camera.toArray());
     
         renderPass.setPipeline(this.renderPipeline);
@@ -33,7 +33,7 @@ export class SpritePipeline {
         renderPass.setVertexBuffer(0, this.vertexBuffer);
         renderPass.setVertexBuffer(1, this.instanceBuffer);
         renderPass.setIndexBuffer(this.indexBuffer, 'uint16');
-        renderPass.drawIndexed(Quad.indices.length, 1);
+        renderPass.drawIndexed(Quad.indices.length, instances.length);
     }
 
     static async create(device: GPUDevice, queue: GPUQueue, configuration: GPUCanvasConfiguration)

@@ -14,10 +14,10 @@ export type QuadInstanceParams = {
 
 export type SpriteQuadInstanceParams = QuadInstanceParams & {
     texture: {
-        x: number,
-        y: number,
-        w: number,
-        h: number,
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
     }
 };
 
@@ -80,7 +80,7 @@ export class SpriteQuadInstance extends QuadInstance {
     constructor(config: SpriteQuadInstanceParams) {
         super(config);
         this.texture = vec4.fromValues(
-            config.texture.x, config.texture.y, config.texture.w, config.texture.h);
+            config.texture.x1, config.texture.y1, config.texture.x2, config.texture.y2);
     }
 
     public toArray(): Float32Array {
