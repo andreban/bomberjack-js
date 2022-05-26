@@ -177,9 +177,20 @@ export class SpritePipeline {
                 module: spriteShader,
                 entryPoint: 'fs_main',
                 targets: [{
-                format: configuration.format,
-                writeMask: GPUColorWrite.ALL,
-                }],
+                    format: configuration.format,
+                    blend: {
+                        alpha: {
+                            srcFactor: 'one',
+                            dstFactor: 'zero',
+                            operation: 'add'},
+                        color: {
+                            srcFactor: 'one',
+                            dstFactor: 'one-minus-src-alpha',
+                            operation: 'add'
+                        },
+                    },
+                    writeMask: GPUColorWrite.ALL,
+                } as GPUColorTargetState],
             },
             primitive: {
                 topology: 'triangle-list',
@@ -187,11 +198,11 @@ export class SpritePipeline {
                 cullMode: 'back',
                 unclippedDepth: false,
             },
-            // multisample: {
-            //   count: 1,
-            //   mask: 1,
-            //   alphaToCoverageEnabled: false,
-            // },
+            multisample: {
+              count: 1,
+              mask: 1,
+              alphaToCoverageEnabled: false,
+            },
         });
 
         const vertexBuffer = device.createBuffer({
