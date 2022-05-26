@@ -27,10 +27,10 @@ export class Camera2d {
     );
     const proj = mat4.orthoNO(
       mat4.create(),
-      - this.size[0],
-      this.size[0],
-      - this.size[1],
-      this.size[1],
+      - this.size[0] / 2,
+      this.size[0] / 2,
+      - this.size[1] / 2,
+      this.size[1] / 2,
       0.1,
       100.0);
     return mat4.multiply(mat4.create(), proj, view);

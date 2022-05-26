@@ -36,7 +36,7 @@ export abstract class QuadInstance {
 
     constructor(config: QuadInstanceParams) {
         this.translation = vec3.fromValues(config.position.x, config.position.y, 0.0);
-        this.scale = vec3.fromValues(config.size.width, config.size.height, 0.0);
+        this.scale = vec3.fromValues(config.size.width / 2, config.size.height / 2, 0.0);
         this.rotation = config.rotation
     }
 
@@ -47,9 +47,9 @@ export abstract class QuadInstance {
     protected transform(): mat4 {
         const identity = mat4.identity(mat4.create());
         const translated = mat4.translate(mat4.create(), identity, this.translation);
-        const rotated = mat4.rotateZ(mat4.create(), translated, glMatrix.toRadian(this.rotation));
-        const scaled = mat4.scale(mat4.create(), rotated, this.scale);
-        return scaled;
+        const scaled = mat4.scale(mat4.create(), translated, this.scale);
+        const rotated = mat4.rotateZ(mat4.create(), scaled, glMatrix.toRadian(this.rotation));
+        return rotated;
     }
 }
 

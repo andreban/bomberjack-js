@@ -8,6 +8,7 @@ export class JackGame {
   private camera = new Camera2d(600, 650);
   private background: Entity;
   private jack: Entity;
+  private platforms: Entity[];
 
   constructor() {
     const spriteHelper = new SpriteHelper(1163, 650);
@@ -19,6 +20,10 @@ export class JackGame {
       size: {width: 600, height: 650},
       sprite: backgroundSprite,
     });
+
+    this.platforms = [
+
+    ];
 
     this.jack = new Entity({
       position: {x: 0, y: 0},
@@ -37,11 +42,11 @@ export class JackGame {
     }
 
     if (inputState.isPressed('up')) {
-      this.jack.move(0, 2);
+      this.jack.move(0, 8);
     }
 
-    if (inputState.isPressed('down')) {
-      this.jack.move(0, -2);
+    if (!this.isJackOnGround()) {
+      this.jack.move(0, -4);
     }
   }
 
@@ -51,5 +56,14 @@ export class JackGame {
       [],
       [this.background.toSpriteQuad(), this.jack.toSpriteQuad()],
     );
+  }
+/**
+ * 
+ */
+  private isJackOnGround(): boolean {
+    if (this.jack.position.y <= -282) {
+      return true;
+    }
+    return false;
   }
 }
