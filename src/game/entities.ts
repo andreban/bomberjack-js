@@ -18,9 +18,9 @@ export class Entity {
     this.sprite = params.sprite;
   }
 
-  moveTo(x: number, y: number) {
-    this.position.x = x;
-    this.position.y = y;
+  moveTo(to: {x: number, y: number}) {
+    this.position.x = to.x;
+    this.position.y = to.y;
   }
 
   move(amountX: number, amountY: number) {
@@ -35,5 +35,13 @@ export class Entity {
       texture: this.sprite,
       rotation: 0,
     });
+  }
+}
+
+export class Jack extends Entity {
+  public thrust: number;
+  constructor(params: EntityParams) {
+    super(params);
+    this.thrust = 0;
   }
 }
