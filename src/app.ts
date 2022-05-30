@@ -7,8 +7,10 @@ import { Renderer } from './rendering/renderer';
   const inputState = new InputState(document);
   const renderer = await Renderer.create(canvas);
   const game = new JackGame();
+  const gameStart = performance.now();
   const render = () => {
-    game.update(inputState);
+    const updated = performance.now();
+    game.update(inputState, updated - gameStart);
     game.render(renderer);
     requestAnimationFrame(render);
   };

@@ -9,8 +9,24 @@ export class Sprite {
 }
 
 export class SpriteAnimation {
-  sprites: Sprite[];
-  currentSprite: number;
+  sprites: Map<String, Sprite>;
+  currentSprite: string;
+
+  constructor(sprites: Sprite[]) {
+    this.sprites = new Map();
+    for (const sprite of sprites) {
+      this.sprites.set(sprite.name, sprite);
+    }
+    this.currentSprite = sprites[0].name;
+  }
+
+  public setCurrent(name: string) {
+    this.currentSprite = name;
+  }
+
+  public getCurrent(): Sprite {
+    return this.sprites.get(this.currentSprite);
+  }
 }
 
 export class SpriteHelper {
