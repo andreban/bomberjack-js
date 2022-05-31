@@ -9,10 +9,32 @@ export class Sprite {
 }
 
 export class SpriteAnimation {
-  sprites: Map<String, Sprite>;
+  private current: number;
+  private lastUpdate: number = 0;
+
+  constructor(public name: string, private sprites: Sprite[]) {
+    this.current = 0;
+  }
+
+  public update(gameTime: number) {
+    if (gameTime - this.lastUpdate < 40) {
+      return;
+    }
+    this.lastUpdate = gameTime;
+    this.current++;
+    this.current = this.current % this.sprites.length;
+  }
+
+  public getFrame(): Sprite {
+    return this.sprites[this.current];
+  }
+}
+
+export class SpriteSet {
+  sprites: Map<String, SpriteAnimation>;
   currentSprite: string;
 
-  constructor(sprites: Sprite[]) {
+  constructor(sprites: SpriteAnimation[]) {
     this.sprites = new Map();
     for (const sprite of sprites) {
       this.sprites.set(sprite.name, sprite);
@@ -23,8 +45,7 @@ export class SpriteAnimation {
   public setCurrent(name: string) {
     this.currentSprite = name;
   }
-
-  public getCurrent(): Sprite {
+  public getCurrent(): SpriteAnimation {
     return this.sprites.get(this.currentSprite);
   }
 }
@@ -32,6 +53,11 @@ export class SpriteAnimation {
 export class SpriteHelper {
   constructor(private textureWidth: number, private textureHeight: number) {
 
+  }
+
+  public createSpriteAnimation(
+      name: string, x: number, y: number, width: number, height: number): SpriteAnimation {
+    return new SpriteAnimation(name, [this.createSprite(name, x, y, width, height)]);
   }
 
   public createSprite(name: string, x: number, y: number, width: number, height: number): Sprite {

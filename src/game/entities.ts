@@ -8,9 +8,9 @@ export type EntityParams = {
 };
 
 export class Entity {
-  position: {x: number, y: number};
-  size: {width: number, height: number};
-  sprite: Sprite; 
+  public position: {x: number, y: number};
+  public size: {width: number, height: number};
+  public sprite: Sprite; 
 
   constructor(params: EntityParams) {
     this.position = params.position;
@@ -43,5 +43,18 @@ export class Jack extends Entity {
   constructor(params: EntityParams) {
     super(params);
     this.thrust = 0;
+  }
+}
+
+export class Bomb extends Entity {
+  public state: 'live' | 'collected';
+
+  constructor(position: {x: number, y: number}, sprite: Sprite) {
+    super({
+      position: {x: position.x, y: position.y},
+      size: {width: 36, height: 48},
+      sprite: sprite
+    });
+    this.state = 'live';
   }
 }

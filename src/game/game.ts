@@ -1,30 +1,35 @@
 import { InputState } from "../input";
 import { Camera2d } from "../rendering/camera";
 import { Renderer } from "../rendering/renderer";
-import { Entity, Jack } from "./entities";
-import { SpriteAnimation, SpriteHelper } from "./sprite";
+import { Bomb, Entity, Jack } from "./entities";
+import { SpriteAnimation, SpriteSet, SpriteHelper } from "./sprite";
 
 export class JackGame {
   private camera = new Camera2d(600, 650);
   private background: Entity;
   private jack: Jack;
   private platforms: Entity[];
-  private bombs: Entity[];
-  private jackSprites: SpriteAnimation;
+  private bombs: Bomb[];
+  private jackSprites: SpriteSet;
+  private bombSprites: SpriteSet;
   private score: number;
 
   constructor() {
     this.score = 0;
     const spriteHelper = new SpriteHelper(1163, 650);
     const backgroundSprite = spriteHelper.createSprite('background', 0, 0, 600, 650);
-    this.jackSprites = new SpriteAnimation([
-      spriteHelper.createSprite('jack_idle', 601, 256, 39, 45),
-      spriteHelper.createSprite('jack_fall', 636.0, 64.0, 40.0, 48.0),
-      spriteHelper.createSprite('jack_fly', 601.0, 208.0, 40.0, 48.0),
-      spriteHelper.createSprite('jack_left0', 601.0, 301.0, 40.0, 48.0),
-      spriteHelper.createSprite('jack_left1', 639.0, 256.0, 40.0, 48.0),
-      spriteHelper.createSprite('jack_right0', 641.0, 208.0, 40.0, 48.0),
-      spriteHelper.createSprite('jack_right1', 649.0, 160.0, 40.0, 48.0),
+    this.jackSprites = new SpriteSet([
+      spriteHelper.createSpriteAnimation('jack_idle', 601, 256, 39, 45),
+      spriteHelper.createSpriteAnimation('jack_fall', 636.0, 64.0, 40.0, 48.0),
+      spriteHelper.createSpriteAnimation('jack_fly', 601.0, 208.0, 40.0, 48.0),
+      new SpriteAnimation('jack_left', [
+        spriteHelper.createSprite('jack_left0', 601.0, 301.0, 40.0, 48.0),
+        spriteHelper.createSprite('jack_left1', 639.0, 256.0, 40.0, 48.0),
+      ]),
+      new SpriteAnimation('jack_right', [
+        spriteHelper.createSprite('jack_right0', 641.0, 208.0, 40.0, 48.0),
+        spriteHelper.createSprite('jack_right1', 649.0, 160.0, 40.0, 48.0),
+      ]),
     ]);
 
     this.background = new Entity ({
@@ -73,113 +78,22 @@ export class JackGame {
     ];
 
     const bombSprite = spriteHelper.createSprite('bomb0', 601.0, 112.0, 36.0, 48.0);
+    const createBomb = (x: number, y: number): Bomb => {
+      return new Bomb(JackGame.createPosition(x, y), bombSprite);
+    };
+
     this.bombs = [
-      new Entity({
-        position: JackGame.createPosition(110, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(170, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(230, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(430, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(490, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(550, 95),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(40, 290),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(40, 350),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(40, 410),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(40, 470),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(560, 290),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(560, 350),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(560, 410),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(560, 470),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(110, 605),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(170, 605),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(230, 605),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(360, 545),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(420, 545),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
-      new Entity({
-        position: JackGame.createPosition(480, 545),
-        size: {width: 36, height: 48},
-        sprite: bombSprite,
-      }),
+      createBomb(110, 95), createBomb(170, 95), createBomb(230, 95), createBomb(430, 95),
+      createBomb(490, 95), createBomb(550, 95), createBomb(40, 290), createBomb(40, 350),
+      createBomb(40, 410), createBomb(40, 470), createBomb(560, 290), createBomb(560, 350),
+      createBomb(560, 410), createBomb(560, 470), createBomb(110, 605), createBomb(170, 605),
+      createBomb(230, 605), createBomb(360, 545), createBomb(420, 545), createBomb(480, 545),
     ];
 
     this.jack = new Jack({
       position: {x: 0, y: 0},
       size: {width: 39, height: 45},
-      sprite: this.jackSprites.getCurrent(),
+      sprite: this.jackSprites.getCurrent().getFrame(),
     });
   }
 
@@ -216,17 +130,20 @@ export class JackGame {
       this.jack.moveTo({x: this.jack.position.x, y: to.y});
     }
 
+    this.checkBombs();
+
     if (this.jack.thrust > 0) {
       this.jackSprites.setCurrent('jack_fly');
     } else if (this.jack.position.y < originalPosition.y) {
       this.jackSprites.setCurrent('jack_fall');
     } else if (this.jack.position.x < originalPosition.x) {
-      this.jackSprites.setCurrent(`jack_left${Math.round(gameTime / 20) % 2}`);
+      this.jackSprites.setCurrent(`jack_left`);
     } else if (this.jack.position.x > originalPosition.x) {
-      this.jackSprites.setCurrent(`jack_right${Math.round(gameTime / 20) % 2}`);
+      this.jackSprites.setCurrent(`jack_right`);
     }
 
-    this.jack.sprite = this.jackSprites.getCurrent();
+    this.jackSprites.getCurrent().update(gameTime);
+    this.jack.sprite = this.jackSprites.getCurrent().getFrame();
   }
 
   public render(renderer: Renderer) {
@@ -236,10 +153,24 @@ export class JackGame {
       [
         this.background.toSpriteQuad(),
         ...this.platforms.map(p => p.toSpriteQuad()),
-        ...this.bombs.map(b => b.toSpriteQuad()),
+        ...this.bombs
+            .filter(b => b.state === 'live')
+            .map(b => b.toSpriteQuad()),
         this.jack.toSpriteQuad(),
       ],
     );
+  }
+
+  private checkBombs() {
+    for (const bomb of this.bombs) {
+      if (this.jack.position.x < bomb.position.x + bomb.size.width
+            && this.jack.position.x + this.jack.size.width > bomb.position.x
+            && this.jack.position.y < bomb.position.y + bomb.size.height
+            && this.jack.position.y + this.jack.size.height > bomb.position.y
+            && bomb.state !== 'collected'){
+          bomb.state = 'collected';
+        }
+    }
   }
 
   private static createPosition(x: number, y: number): {x: number, y: number} {
