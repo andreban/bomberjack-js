@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bomber Jack</title>
     <style>
       body {
@@ -9,16 +10,26 @@
         flex-direction: column;
       }
 
-      canvas {
+      canvas, div {
         aspect-ratio: 600 / 650;
-        max-width: 600px;
         max-height: 650px;
       }
 
       h1, canvas {
+        text-align: center;
         margin: 0px auto;
-      
         width: 100%;
+        max-width: 600px;
+      }
+
+      div {
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+      }
+
+      .hidden {
+        display: none;
       }
     </style>
     <script type="module" src="app.ts"></script>
@@ -26,5 +37,9 @@
   <body>
     <h1>Bomber Jack</h1>
     <canvas id="game-canvas" width="600" height="650"></canvas>
+    <div id="webgpu-not-supported" class="hidden">
+      Your browser does not support WebGPU. You may want to install Chrome Canary and enable the
+      chrome://flags/#enable-experimental-web-platform-features flag.
+    </div>
   </body>
 </html>
