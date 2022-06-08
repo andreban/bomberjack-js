@@ -1,22 +1,31 @@
 export type InputType = 'left' | 'right' | 'up' | 'down';
 
 export class InputState {
-  private inputState: Map<InputType, boolean> = new Map();
-
+  // Record<InputType, boolean> is a shortcut to {[key in InputType]: boolean}
+  private inputState: Record<InputType, boolean>;
+  
+  // private inputState: Map<InputType, boolean> = new Map();
   constructor(document: Document) {
+    this.inputState = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+    };
+
     document.addEventListener('keydown', (ev) => {
       switch (ev.code) {
         case 'ArrowLeft':
-          this.inputState.set('left', true);
+          this.inputState['left'] = true;
           break;
         case 'ArrowRight':
-          this.inputState.set('right', true);
+          this.inputState['right'] = true;
           break;
         case 'ArrowUp':
-          this.inputState.set('up', true);
+          this.inputState['up'] = true;
           break;
         case 'ArrowDown':
-          this.inputState.set('down', true);
+          this.inputState['down'] = true;
           break;
       }
     });
@@ -24,25 +33,22 @@ export class InputState {
     document.addEventListener('keyup', (ev) => {
       switch (ev.code) {
         case 'ArrowLeft':
-          this.inputState.set('left', false);
+          this.inputState['left'] = false;
           break;
         case 'ArrowRight':
-          this.inputState.set('right', false);
+          this.inputState['right'] = false;
           break;
         case 'ArrowUp':
-          this.inputState.set('up', false);
+          this.inputState['up'] = false;
           break;
         case 'ArrowDown':
-          this.inputState.set('down', false);
+          this.inputState['down'] = false;
           break;
       }      
     });
   }
 
   isPressed(inputType: InputType): boolean {
-    if (!this.inputState.has(inputType)) {
-      return false;
-    }
-    return this.inputState.get(inputType);
+    return this.inputState[inputType];
   }
 }

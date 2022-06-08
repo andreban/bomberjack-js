@@ -4,6 +4,9 @@ import { Renderer } from "../rendering/renderer";
 import { Bomb, Entity, Jack } from "./entities";
 import { SpriteAnimation, SpriteSet, SpriteHelper } from "./sprite";
 
+// Target FPS is 60 frames per second.
+const TARGET_FPS = 1000 / 60;
+
 export class JackGame {
   private camera = new Camera2d(600, 650);
   private background: Entity;
@@ -13,8 +16,10 @@ export class JackGame {
   private jackSprites: SpriteSet;
   private bombSprites: SpriteSet;
   private score: number;
+  private lastUpdateTime = 0;
 
   constructor() {
+    this.lastUpdateTime = 0;
     this.score = 0;
     const spriteHelper = new SpriteHelper(1163, 650);
     const backgroundSprite = spriteHelper.createSprite('background', 0, 0, 600, 650);
@@ -98,6 +103,12 @@ export class JackGame {
   }
 
   public update(inputState: InputState, gameTime: number) {
+    // Next updated called too son. Skip it.
+    if (gameTime - this.lastUpdateTime < TARGET_FPS) {
+      return;
+    }
+    this.lastUpdateTime = gameTime;
+
     const to: {x: number, y: number}  = {x: this.jack.position.x, y: this.jack.position.y};
 
     this.jackSprites.setCurrent('jack_idle');
