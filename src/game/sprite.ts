@@ -11,13 +11,15 @@ export class Sprite {
 export class SpriteAnimation {
   private current: number;
   private lastUpdate: number = 0;
+  private frameInterval: number;
 
-  constructor(public name: string, private sprites: Sprite[]) {
+  constructor(public name: string, private sprites: Sprite[], fps: number) {
     this.current = 0;
+    this.frameInterval = 1000 / fps;
   }
 
   public update(gameTime: number) {
-    if (gameTime - this.lastUpdate < 40) {
+    if (gameTime - this.lastUpdate < this.frameInterval) {
       return;
     }
     this.lastUpdate = gameTime;
@@ -30,26 +32,6 @@ export class SpriteAnimation {
   }
 }
 
-export class SpriteSet {
-  sprites: Map<String, SpriteAnimation>;
-  currentSprite: string;
-
-  constructor(sprites: SpriteAnimation[]) {
-    this.sprites = new Map();
-    for (const sprite of sprites) {
-      this.sprites.set(sprite.name, sprite);
-    }
-    this.currentSprite = sprites[0].name;
-  }
-
-  public setCurrent(name: string) {
-    this.currentSprite = name;
-  }
-  public getCurrent(): SpriteAnimation {
-    return this.sprites.get(this.currentSprite);
-  }
-}
-
 export class SpriteHelper {
   constructor(private textureWidth: number, private textureHeight: number) {
 
@@ -57,7 +39,7 @@ export class SpriteHelper {
 
   public createSpriteAnimation(
       name: string, x: number, y: number, width: number, height: number): SpriteAnimation {
-    return new SpriteAnimation(name, [this.createSprite(name, x, y, width, height)]);
+    return new SpriteAnimation(name, [this.createSprite(name, x, y, width, height)], 30);
   }
 
   public createSprite(name: string, x: number, y: number, width: number, height: number): Sprite {

@@ -1,8 +1,8 @@
 import { InputState } from "../input";
 import { Camera2d } from "../rendering/camera";
 import { Renderer } from "../rendering/renderer";
-import { Bomb, Entity, Jack } from "./entities";
-import { SpriteAnimation, SpriteSet, SpriteHelper } from "./sprite";
+import { Bomb, Entity, Jack, StaticEntity } from "./entities";
+import { SpriteAnimation, SpriteHelper } from "./sprite";
 
 // Target FPS is 60 frames per second.
 const TARGET_FPS = 1000 / 60;
@@ -13,8 +13,6 @@ export class JackGame {
   private jack: Jack;
   private platforms: Entity[];
   private bombs: Bomb[];
-  private jackSprites: SpriteSet;
-  private bombSprites: SpriteSet;
   private score: number;
   private lastUpdateTime = 0;
 
@@ -23,68 +21,55 @@ export class JackGame {
     this.score = 0;
     const spriteHelper = new SpriteHelper(1163, 650);
     const backgroundSprite = spriteHelper.createSprite('background', 0, 0, 600, 650);
-    this.jackSprites = new SpriteSet([
-      spriteHelper.createSpriteAnimation('jack_idle', 601, 256, 39, 45),
-      spriteHelper.createSpriteAnimation('jack_fall', 636.0, 64.0, 40.0, 48.0),
-      spriteHelper.createSpriteAnimation('jack_fly', 601.0, 208.0, 40.0, 48.0),
-      new SpriteAnimation('jack_left', [
-        spriteHelper.createSprite('jack_left0', 601.0, 301.0, 40.0, 48.0),
-        spriteHelper.createSprite('jack_left1', 639.0, 256.0, 40.0, 48.0),
-      ]),
-      new SpriteAnimation('jack_right', [
-        spriteHelper.createSprite('jack_right0', 641.0, 208.0, 40.0, 48.0),
-        spriteHelper.createSprite('jack_right1', 649.0, 160.0, 40.0, 48.0),
-      ]),
-    ]);
 
-    this.background = new Entity ({
-      position: {x: 0, y: 0},
+    this.background = new StaticEntity ({
+      position: {x: 600 / 2, y: 650 / 2},
       size: {width: 600, height: 650},
       sprite: backgroundSprite,
     });
 
     this.platforms = [
-      new Entity({
-          position: {
-            x: 400 - 300,
-            y: (180 - 325) * -1,
-          },
+      new StaticEntity({
+          position: JackGame.createPosition(400, 180),
           size: {width: 150, height: 22},
           sprite: spriteHelper.createSprite('platform1', 780.0, 42.0, 150.0, 22.0),
       }),
-      new Entity ({
-          position: {
-            x: 420.0 - 300,
-            y: (580 - 325) * -1,
-          },
+      new StaticEntity ({
+          position: JackGame.createPosition(420, 580),
           size: {width: 180, height: 22},
           sprite: spriteHelper.createSprite('platform2', 600.0, 42.0, 180.0, 22.0),
       }),
-      new Entity ({
+      new StaticEntity ({
         position: JackGame.createPosition(420, 580),
         size: {width: 180, height: 22},
         sprite: spriteHelper.createSprite('platform2', 600.0, 42.0, 180.0, 22.0),
       }),
-      new Entity ({
+      new StaticEntity ({
         position: JackGame.createPosition(320, 440),
         size: {width: 117, height: 22},
         sprite: spriteHelper.createSprite('platform3', 930.0, 42.0, 117.0, 22.0),
       }),
-      new Entity ({
+      new StaticEntity ({
         position: JackGame.createPosition(180, 250),
         size: {width: 91, height: 22},
         sprite: spriteHelper.createSprite('platform4', 1047.0, 42.0, 91.0, 22.0),
       }),
-      new Entity ({
+      new StaticEntity ({
         position: JackGame.createPosition(120, 510),
         size: {width: 91, height: 22},
         sprite: spriteHelper.createSprite('platform5', 1047.0, 42.0, 91.0, 22.0),
       }),
     ];
 
-    const bombSprite = spriteHelper.createSprite('bomb0', 601.0, 112.0, 36.0, 48.0);
     const createBomb = (x: number, y: number): Bomb => {
-      return new Bomb(JackGame.createPosition(x, y), bombSprite);
+      return new Bomb({
+        position: JackGame.createPosition(x, y),
+        size: {width: 36, height: 48},
+        animations: {
+          'collected': spriteHelper.createSpriteAnimation('bomb0', 601.0, 112.0, 36.0, 48.0),
+          'live': spriteHelper.createSpriteAnimation('bomb0', 601.0, 112.0, 36.0, 48.0),
+        },
+      });
     };
 
     this.bombs = [
@@ -96,9 +81,21 @@ export class JackGame {
     ];
 
     this.jack = new Jack({
-      position: {x: 0, y: 0},
+      position: {x: 300, y: 325},
       size: {width: 39, height: 45},
-      sprite: this.jackSprites.getCurrent().getFrame(),
+      animations: {
+        fall: spriteHelper.createSpriteAnimation('jack_fall', 636.0, 64.0, 40.0, 48.0),
+        fly: spriteHelper.createSpriteAnimation('jack_fly', 601.0, 208.0, 40.0, 48.0),
+        idle: spriteHelper.createSpriteAnimation('jack_idle', 601, 256, 39, 45),
+        move_left: new SpriteAnimation('jack_left', [
+          spriteHelper.createSprite('jack_left0', 601.0, 301.0, 40.0, 48.0),
+          spriteHelper.createSprite('jack_left1', 639.0, 256.0, 40.0, 48.0),
+        ], 30),
+        move_right: new SpriteAnimation('jack_right', [
+          spriteHelper.createSprite('jack_right0', 641.0, 208.0, 40.0, 48.0),
+          spriteHelper.createSprite('jack_right1', 649.0, 160.0, 40.0, 48.0),
+        ], 30),
+      }
     });
   }
 
@@ -111,7 +108,7 @@ export class JackGame {
 
     const to: {x: number, y: number}  = {x: this.jack.position.x, y: this.jack.position.y};
 
-    this.jackSprites.setCurrent('jack_idle');
+    this.jack.setState('idle');
     const onGround = this.isJackOnGround() && this.jack.thrust <= 0;
 
     if (onGround) {
@@ -144,17 +141,16 @@ export class JackGame {
     this.checkBombs();
 
     if (this.jack.thrust > 0) {
-      this.jackSprites.setCurrent('jack_fly');
+      this.jack.setState('fly');
     } else if (this.jack.position.y < originalPosition.y) {
-      this.jackSprites.setCurrent('jack_fall');
+      this.jack.setState('fall');
     } else if (this.jack.position.x < originalPosition.x) {
-      this.jackSprites.setCurrent(`jack_left`);
+      this.jack.setState('move_left');
     } else if (this.jack.position.x > originalPosition.x) {
-      this.jackSprites.setCurrent(`jack_right`);
+      this.jack.setState('move_right');
     }
 
-    this.jackSprites.getCurrent().update(gameTime);
-    this.jack.sprite = this.jackSprites.getCurrent().getFrame();
+    this.jack.update(gameTime);
   }
 
   public render(renderer: Renderer) {
@@ -185,15 +181,15 @@ export class JackGame {
   }
 
   private static createPosition(x: number, y: number): {x: number, y: number} {
-    return {x: x - 300, y: (y - 325) * -1}
+    return {x: x, y: (650 - y) }
   }
 
   private canMove(position: {x: number, y: number}): boolean {
-    return position.x >= -260 && position.x <= 260 && position.y < 230;
+    return position.x >= 40 && position.x <= 560 && position.y < 560;
   }
 
   private isJackOnGround(): boolean {
-    if (this.jack.position.y <= -282) {
+    if (this.jack.position.y <= 42) {
       return true;
     }
 
