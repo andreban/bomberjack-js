@@ -1,5 +1,14 @@
 export type InputType = 'left' | 'right' | 'up' | 'down';
 
+// TODO: I guess those IDs are not stable across different controllers brands?
+// (seems stable across PS4 controllers). Likely need to map controller brand => Mapping.
+const GamePadInputMap = {
+  'left': 14,
+  'right': 15,
+  'up': 0, // Maps to X button, not up on the PS4 gamepad.
+  'down': 13,
+}
+
 export class InputState {
   // Record<InputType, boolean> is a shortcut to {[key in InputType]: boolean}
   private inputState: Record<InputType, boolean>;
@@ -49,6 +58,7 @@ export class InputState {
   }
 
   isPressed(inputType: InputType): boolean {
-    return this.inputState[inputType];
+    return this.inputState[inputType] ||
+        navigator.getGamepads()[0] && navigator.getGamepads()[0].buttons[GamePadInputMap[inputType]].pressed;
   }
 }

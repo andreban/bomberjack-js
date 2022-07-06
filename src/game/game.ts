@@ -175,6 +175,20 @@ export class JackGame {
             && this.jack.position.y < bomb.position.y + bomb.size.height
             && this.jack.position.y + this.jack.size.height > bomb.position.y
             && bomb.state !== 'collected'){
+          // TODO: Move this to a "bomb collected" event and handle the feedback there.
+          const gamepads = navigator.getGamepads();
+          if (gamepads[0]) {
+            const vibrationActuator = gamepads[0].vibrationActuator;
+            if (vibrationActuator) {
+              vibrationActuator.playEffect('dual-rumble', {
+                startDelay: 0,
+                duration: 100,
+                weakMagnitude: 0.5,
+                strongMagnitude: 0.5,
+              });
+            }            
+          }
+          
           bomb.state = 'collected';
         }
     }
