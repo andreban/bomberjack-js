@@ -56,7 +56,7 @@ export class Renderer {
       device: gpuDevice,
       format: navigator.gpu.getPreferredCanvasFormat(),
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
-      compositingAlphaMode: 'opaque',
+      alphaMode: 'opaque',
     };
     gpuCanvasContext.configure(canvasConfig);
 
