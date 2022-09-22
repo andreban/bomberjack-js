@@ -16,6 +16,7 @@ import { Renderer } from './rendering/renderer';
     };
     requestAnimationFrame(render);
   } catch(e) {
+    console.error(e);
     canvas.classList.toggle('hidden');
     error.classList.toggle('hidden');
   }
